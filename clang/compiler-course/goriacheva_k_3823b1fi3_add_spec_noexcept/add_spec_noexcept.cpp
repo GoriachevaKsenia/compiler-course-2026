@@ -9,8 +9,7 @@ namespace {
 class NoexceptVisitor final
     : public clang::RecursiveASTVisitor<NoexceptVisitor> {
 public:
-  explicit NoexceptVisitor(clang::ASTContext *context)
-      : m_context(context) {}
+  explicit NoexceptVisitor(clang::ASTContext *context) : m_context(context) {}
 
   bool VisitFunctionDecl(clang::FunctionDecl *func) {
 
@@ -55,16 +54,14 @@ private:
         if (!Callee)
           return true;
 
-        auto *Proto =
-            Callee->getType()->getAs<clang::FunctionProtoType>();
+        auto *Proto = Callee->getType()->getAs<clang::FunctionProtoType>();
 
         if (!Proto)
           return true;
 
         auto Spec = Proto->getExceptionSpecType();
 
-        if (Spec != clang::EST_BasicNoexcept &&
-            Spec != clang::EST_NoThrow &&
+        if (Spec != clang::EST_BasicNoexcept && Spec != clang::EST_NoThrow &&
             Spec != clang::EST_NoexceptTrue)
           return true;
       }
@@ -79,16 +76,12 @@ private:
   void addNoexcept(clang::FunctionDecl *FD,
                    const clang::FunctionProtoType *Proto) {
 
-    clang::FunctionProtoType::ExtProtoInfo Info =
-        Proto->getExtProtoInfo();
+    clang::FunctionProtoType::ExtProtoInfo Info = Proto->getExtProtoInfo();
 
     Info.ExceptionSpec.Type = clang::EST_BasicNoexcept;
 
-    clang::QualType NewType =
-        m_context->getFunctionType(
-            Proto->getReturnType(),
-            Proto->getParamTypes(),
-            Info);
+    clang::QualType NewType = m_context->getFunctionType(
+        Proto->getReturnType(), Proto->getParamTypes(), Info);
 
     FD->setType(NewType);
   }
@@ -96,8 +89,7 @@ private:
 
 class NoexceptConsumer final : public clang::ASTConsumer {
 public:
-  explicit NoexceptConsumer(clang::ASTContext *context)
-      : m_visitor(context) {}
+  explicit NoexceptConsumer(clang::ASTContext *context) : m_visitor(context) {}
 
   void HandleTranslationUnit(clang::ASTContext &context) override {
     m_visitor.TraverseDecl(context.getTranslationUnitDecl());
@@ -110,8 +102,7 @@ private:
 class ActionAction final : public clang::PluginASTAction {
 public:
   std::unique_ptr<clang::ASTConsumer>
-  CreateASTConsumer(clang::CompilerInstance &ci,
-                    llvm::StringRef) override {
+  CreateASTConsumer(clang::CompilerInstance &ci, llvm::StringRef) override {
     return std::make_unique<NoexceptConsumer>(&ci.getASTContext());
   }
 
@@ -123,5 +114,5 @@ public:
 
 } // namespace
 
-static clang::FrontendPluginRegistry::Add<ActionAction>
-    X("spec_noexcept", "Description plugin");
+static clang::FrontendPluginRegistry::Add<ActionAction> X("spec_noexcept",
+                                                          "Description plugin");
