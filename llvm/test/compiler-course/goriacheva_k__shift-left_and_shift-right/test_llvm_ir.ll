@@ -1,4 +1,4 @@
-; RUN: opt -load-pass-plugin %llvmshlibdir/goriacheva_k_shift-left_and_shift-right_LLVM_IR%pluginext \
+; RUN: opt -load-pass-plugin %llvmshlibdir/goriacheva_k__shift-left_and_shift-right_LLVM_IR%pluginext \
 ; RUN: -passes=shift -S %s | FileCheck %s
 
 ; =========================================
